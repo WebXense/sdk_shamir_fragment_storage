@@ -19,22 +19,30 @@ func NewShamirFragmentStorageSdk(host string) *shamirFragmentStorageSdk {
 	}
 }
 
-func (s *shamirFragmentStorageSdk) CreateFragment(request *CreateFragmentRequest) (*ginger.Response, error) {
-	status, resp, err := http.Post[ginger.Response](s.host+url_create_fragment, nil, nil, request)
+func (s *shamirFragmentStorageSdk) CreateFragment(key string, weight uint8, value string, secret string) (*FragmentDTO, *ginger.Response, error) {
+	status, resp, err := http.Post[ginger.Response](s.host+url_create_fragment, nil, nil, &createFragmentRequest{
+		Key:    key,
+		Weight: weight,
+		Value:  value,
+		Secret: secret,
+	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
 	if status != 200 {
-		return nil, errors.New("create fragment failed with status: " + strconv.Itoa(status))
+		return nil, nil, errors.New("create fragment failed with status: " + strconv.Itoa(status))
 	}
-
-	resp.Data = mapByJson(resp.Data, &FragmentDTO{})
-	return resp, nil
+	if !resp.Success {
+		return nil, resp, nil
+	}
+	return mapByJson(resp.Data, &FragmentDTO{}), resp, nil
 }
 
-func (s *shamirFragmentStorageSdk) DeleteFragment(request *DeleteFragmentRequest) (*ginger.Response, error) {
-	status, resp, err := http.Delete[ginger.Response](s.host+url_delete_fragment, nil, nil, request)
+func (s *shamirFragmentStorageSdk) DeleteFragment(key, secret string) (*ginger.Response, error) {
+	status, resp, err := http.Delete[ginger.Response](s.host+url_delete_fragment, nil, nil, &deleteFragmentRequest{
+		Key:    key,
+		Secret: secret,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -46,34 +54,40 @@ func (s *shamirFragmentStorageSdk) DeleteFragment(request *DeleteFragmentRequest
 	return resp, nil
 }
 
-func (s *shamirFragmentStorageSdk) GetFragment(request *GetFragmentRequest) (*ginger.Response, error) {
+func (s *shamirFragmentStorageSdk) GetFragment(key, secret string) (*FragmentDTO, *ginger.Response, error) {
 	status, resp, err := http.Get[ginger.Response](s.host+url_get_fragment, nil, map[string]string{
-		"key": request.Key,
+		"key":    key,
+		"secret": secret,
 	}, nil)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
 	if status != 200 {
-		return nil, errors.New("get fragment failed with status: " + strconv.Itoa(status))
+		return nil, nil, errors.New("get fragment failed with status: " + strconv.Itoa(status))
 	}
-
-	resp.Data = mapByJson(resp.Data, &FragmentDTO{})
-	return resp, nil
+	if !resp.Success {
+		return nil, resp, nil
+	}
+	return mapByJson(resp.Data, &FragmentDTO{}), resp, nil
 }
 
-func (s *shamirFragmentStorageSdk) UpdateFragment(request *UpdateFragmentRequest) (*ginger.Response, error) {
-	status, resp, err := http.Put[ginger.Response](s.host+url_update_fragment, nil, nil, request)
+func (s *shamirFragmentStorageSdk) UpdateFragment(key string, weight uint8, value string, secret string) (*FragmentDTO, *ginger.Response, error) {
+	status, resp, err := http.Put[ginger.Response](s.host+url_update_fragment, nil, nil, &updateFragmentRequest{
+		Key:    key,
+		Weight: weight,
+		Value:  value,
+		Secret: secret,
+	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
 	if status != 200 {
-		return nil, errors.New("update fragment failed with status: " + strconv.Itoa(status))
+		return nil, nil, errors.New("update fragment failed with status: " + strconv.Itoa(status))
 	}
-
-	resp.Data = mapByJson(resp.Data, &FragmentDTO{})
-	return resp, nil
+	if !resp.Success {
+		return nil, resp, nil
+	}
+	return mapByJson(resp.Data, &FragmentDTO{}), resp, nil
 }
 
 func mapByJson[T any](from interface{}, to *T) *T {

@@ -6,24 +6,19 @@ type FragmentDTO struct {
 	Value  string `json:"value"`
 }
 
-type CreateFragmentRequest struct {
+type createFragmentRequest struct {
 	Key    string `json:"key" binding:"required"`
 	Weight uint8  `json:"weight" binding:"required"`
 	Value  string `json:"value" binding:"required"`
 	Secret string `json:"secret" binding:"required"`
 }
 
-type DeleteFragmentRequest struct {
+type deleteFragmentRequest struct {
 	Key    string `json:"key" binding:"required"`
 	Secret string `json:"secret" binding:"required"`
 }
 
-type GetFragmentRequest struct {
-	Key    string `form:"key" binding:"required"`
-	Secret string `form:"secret" binding:"required"`
-}
-
-type UpdateFragmentRequest struct {
+type updateFragmentRequest struct {
 	Key    string `json:"key" binding:"required"`
 	Weight uint8  `json:"weight" binding:"required"`
 	Value  string `json:"value" binding:"required"`
